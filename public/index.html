@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todo API</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="header">
+        <div>
+          <p class="eyebrow">Todo API</p>
+          <h1>Tasks</h1>
+        </div>
+        <button class="ghost-button" id="clear-completed" type="button" hidden>Clear completed</button>
+      </header>
+
+      <form class="composer" id="todo-form">
+        <label class="sr-only" for="todo-title">Task title</label>
+        <input id="todo-title" name="title" type="text" maxlength="200" placeholder="Add a task" autocomplete="off" required>
+        <button type="submit">Add</button>
+      </form>
+
+      <p class="error" id="error" role="alert" hidden></p>
+      <ul class="todo-list" id="todo-list" aria-live="polite"></ul>
+      <p class="empty" id="empty-state">No tasks yet.</p>
+    </main>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>
