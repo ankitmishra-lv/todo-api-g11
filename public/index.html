@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Todos</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="todo-panel" aria-labelledby="app-title">
+        <header class="panel-header">
+          <div>
+            <p class="eyebrow">Todo API</p>
+            <h1 id="app-title">Todos</h1>
+          </div>
+          <output id="todo-count" class="todo-count" aria-live="polite"></output>
+        </header>
+
+        <form id="todo-form" class="todo-form">
+          <label class="sr-only" for="todo-title">Todo title</label>
+          <input
+            id="todo-title"
+            name="title"
+            type="text"
+            maxlength="200"
+            autocomplete="off"
+            placeholder="Add a todo"
+            required
+          >
+          <button type="submit" aria-label="Add todo">Add</button>
+        </form>
+
+        <div class="toolbar">
+          <button
+            id="clear-completed"
+            class="clear-button"
+            type="button"
+            aria-label="Clear completed todos"
+            hidden
+          >
+            Clear completed
+          </button>
+        </div>
+
+        <ul id="todo-list" class="todo-list" aria-label="Todo list"></ul>
+        <p id="empty-state" class="empty-state" hidden>No todos yet.</p>
+        <p id="error-message" class="error-message" role="alert" hidden></p>
+      </section>
+    </main>
+  </body>
+</html>

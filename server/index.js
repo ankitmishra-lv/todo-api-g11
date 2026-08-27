@@ -1,10 +1,13 @@
 const express = require('express');
 const crypto = require('crypto');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const todos = new Map();
+app.locals.resetTodos = () => todos.clear();
 
 // GET /api/todos - list all todos, newest first
 app.get('/api/todos', (req, res) => {
@@ -51,6 +54,20 @@ app.patch('/api/todos/:id', (req, res) => {
   res.json(todo);
 });
 
+// DELETE /api/todos/completed - delete all completed todos
+app.delete('/api/todos/completed', (req, res) => {
+  let deleted = 0;
+
+  for (const [id, todo] of todos) {
+    if (todo.completed) {
+      todos.delete(id);
+      deleted += 1;
+    }
+  }
+
+  res.status(200).json({ deleted });
+});
+
 // DELETE /api/todos/:id - delete a todo
 app.delete('/api/todos/:id', (req, res) => {
   if (!todos.has(req.params.id)) {
@@ -61,8 +78,10 @@ app.delete('/api/todos/:id', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Todo API server listening on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Todo API server listening on port ${PORT}`);
+  });
+}
 
 module.exports = app;
