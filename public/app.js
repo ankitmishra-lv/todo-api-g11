@@ -57,6 +57,14 @@ function todoCountText(activeCount, completedCount) {
   return `${activeLabel} / ${completedLabel}`;
 }
 
+function hasPendingItemMutation() {
+  return state.pendingTodoIds.size > 0;
+}
+
+function itemActionsDisabled(todo) {
+  return state.clearingCompleted || state.pendingTodoIds.has(todo.id);
+}
+
 function render() {
   const sortedTodos = [...state.todos].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
@@ -69,7 +77,7 @@ function render() {
   list.replaceChildren(...sortedTodos.map(renderTodo));
 
   clearCompletedButton.hidden = completedCount === 0;
-  clearCompletedButton.disabled = state.clearingCompleted;
+  clearCompletedButton.disabled = state.clearingCompleted || hasPendingItemMutation();
   clearCompletedButton.textContent = state.clearingCompleted
     ? 'Clearing...'
     : `Clear completed (${completedCount})`;
@@ -83,7 +91,7 @@ function renderTodo(todo) {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.checked = todo.completed;
-  checkbox.disabled = state.pendingTodoIds.has(todo.id);
+  checkbox.disabled = itemActionsDisabled(todo);
   checkbox.setAttribute(
     'aria-label',
     todo.completed ? `Mark "${todo.title}" active` : `Mark "${todo.title}" complete`
@@ -98,7 +106,7 @@ function renderTodo(todo) {
   deleteButton.type = 'button';
   deleteButton.className = 'icon-button';
   deleteButton.textContent = 'Delete';
-  deleteButton.disabled = state.pendingTodoIds.has(todo.id);
+  deleteButton.disabled = itemActionsDisabled(todo);
   deleteButton.setAttribute('aria-label', `Delete "${todo.title}"`);
   deleteButton.addEventListener('click', () => deleteTodo(todo.id));
 
@@ -133,6 +141,10 @@ async function addTodo(title) {
 }
 
 async function toggleTodo(todo) {
+  if (state.clearingCompleted || state.pendingTodoIds.has(todo.id)) {
+    return;
+  }
+
   state.pendingTodoIds.add(todo.id);
   render();
 
@@ -154,6 +166,10 @@ async function toggleTodo(todo) {
 }
 
 async function deleteTodo(id) {
+  if (state.clearingCompleted || state.pendingTodoIds.has(id)) {
+    return;
+  }
+
   state.pendingTodoIds.add(id);
   render();
 
@@ -170,6 +186,10 @@ async function deleteTodo(id) {
 }
 
 async function clearCompleted() {
+  if (state.clearingCompleted || hasPendingItemMutation()) {
+    return;
+  }
+
   state.clearingCompleted = true;
   render();
 
@@ -196,9 +216,7 @@ form.addEventListener('submit', (event) => {
 });
 
 clearCompletedButton.addEventListener('click', () => {
-  if (!state.clearingCompleted) {
-    clearCompleted();
-  }
+  clearCompleted();
 });
 
 loadTodos().catch(showError);
