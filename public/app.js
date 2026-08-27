@@ -4,8 +4,10 @@ const list = document.querySelector('#todo-list');
 const emptyState = document.querySelector('#empty-state');
 const clearCompletedButton = document.querySelector('#clear-completed');
 const errorMessage = document.querySelector('#error');
+const submitButton = form.querySelector('button[type="submit"]');
 
 let todos = [];
+let initialized = false;
 
 function setError(message) {
   errorMessage.textContent = message;
@@ -82,6 +84,11 @@ function render() {
   clearCompletedButton.hidden = !todos.some((todo) => todo.completed);
 }
 
+function setComposerDisabled(disabled) {
+  titleInput.disabled = disabled;
+  submitButton.disabled = disabled;
+}
+
 async function loadTodos() {
   todos = await api('/api/todos');
   render();
@@ -121,6 +128,10 @@ form.addEventListener('submit', async (event) => {
   event.preventDefault();
   setError('');
 
+  if (!initialized) {
+    return;
+  }
+
   const title = titleInput.value.trim();
   if (!title) {
     return;
@@ -145,4 +156,11 @@ clearCompletedButton.addEventListener('click', async () => {
   }
 });
 
-loadTodos().catch((error) => setError(error.message));
+setComposerDisabled(true);
+
+loadTodos()
+  .catch((error) => setError(error.message))
+  .finally(() => {
+    initialized = true;
+    setComposerDisabled(false);
+  });
