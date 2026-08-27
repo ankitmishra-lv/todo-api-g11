@@ -44,7 +44,16 @@ function render() {
     checkbox.type = 'checkbox';
     checkbox.checked = todo.completed;
     checkbox.setAttribute('aria-label', `Mark "${todo.title}" ${todo.completed ? 'active' : 'completed'}`);
-    checkbox.addEventListener('change', () => toggleTodo(todo, checkbox.checked));
+    checkbox.addEventListener('change', async () => {
+      setError('');
+
+      try {
+        await toggleTodo(todo, checkbox.checked);
+      } catch (error) {
+        render();
+        setError(error.message);
+      }
+    });
 
     const title = document.createElement('span');
     title.className = 'todo-title';
@@ -54,7 +63,15 @@ function render() {
     deleteButton.className = 'icon-button';
     deleteButton.type = 'button';
     deleteButton.textContent = 'Delete';
-    deleteButton.addEventListener('click', () => deleteTodo(todo.id));
+    deleteButton.addEventListener('click', async () => {
+      setError('');
+
+      try {
+        await deleteTodo(todo.id);
+      } catch (error) {
+        setError(error.message);
+      }
+    });
 
     item.toggleAttribute('data-completed', todo.completed);
     item.append(checkbox, title, deleteButton);
