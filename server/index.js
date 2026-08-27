@@ -1,8 +1,10 @@
 const express = require('express');
 const crypto = require('crypto');
+const path = require('path');
 
 const app = express();
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const todos = new Map();
 
@@ -27,6 +29,16 @@ app.post('/api/todos', (req, res) => {
   };
   todos.set(todo.id, todo);
   res.status(201).json(todo);
+});
+
+// GET /api/todos/stats - summarize todo completion status
+app.get('/api/todos/stats', (req, res) => {
+  const items = Array.from(todos.values());
+  const total = items.length;
+  const completed = items.filter((todo) => todo.completed).length;
+  const active = total - completed;
+
+  res.json({ total, completed, active });
 });
 
 // PATCH /api/todos/:id - update a todo
@@ -61,8 +73,11 @@ app.delete('/api/todos/:id', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Todo API server listening on port ${PORT}`);
-});
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Todo API server listening on port ${PORT}`);
+  });
+}
 
 module.exports = app;
